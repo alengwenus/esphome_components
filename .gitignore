@@ -1,0 +1,7 @@
+# EspHome
+secrets.yaml
+.esphome/
+/sml/
+/test_data/
+
+*.pyc
