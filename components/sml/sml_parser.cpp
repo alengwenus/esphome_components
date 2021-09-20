@@ -36,36 +36,36 @@ unsigned int skip_entry(const bytes &buffer, unsigned int pos) {
   return pos;
 }
 
-SmlBase::SmlBase(bytes buffer, unsigned int pos) {
-  this->buffer = buffer;
-  this->pos = pos;
-  this->type = buffer[this->pos] >> 4;
+SmlBase::SmlBase(const bytes &buffer, unsigned int pos)
+    : buffer_(buffer), pos_(pos) {
+  this->type = buffer[this->pos_] >> 4;
   this->length = get_entry_length(buffer, pos);
 }
 
-SmlNode::SmlNode(bytes buffer, unsigned int pos) : SmlBase(buffer, pos) {
+SmlNode::SmlNode(const bytes &buffer, unsigned int pos)
+    : SmlBase(buffer, pos) {
   if (!is_list()) {
-    this->value_bytes = bytes(this->buffer.begin() + this->pos + 1, this->buffer.begin() + this->pos + this->length);
+    this->value_bytes = bytes(this->buffer_.begin() + this->pos_ + 1, this->buffer_.begin() + this->pos_ + this->length);
   }
 }
 
 SmlNode SmlNode::node(unsigned int idx) {
   // Todo: check if is_list()
   // Todo: check length
-  unsigned int cur = this->pos + 1;
+  unsigned int pos = this->pos_ + 1;
   for (int i = 0; i != idx; i++) {
-    cur = skip_entry(this->buffer, cur);
+    pos = skip_entry(this->buffer_, pos);
   };
-  return SmlNode(this->buffer, cur);
+  return SmlNode(this->buffer_, pos);
 }
 
 std::vector<SmlNode> SmlNode::nodes() {
   std::vector<SmlNode> nodes;
   if (this->is_list()) {
-    unsigned int cur = this->pos + 1;
+    unsigned int pos = this->pos_ + 1;
     for (int i = 0; i != this->length; i++) {
-      nodes.push_back(SmlNode(this->buffer, cur));
-      cur = skip_entry(this->buffer, cur);
+      nodes.push_back(SmlNode(this->buffer_, pos));
+      pos = skip_entry(this->buffer_, pos);
     }
   }
   return nodes;
@@ -78,13 +78,13 @@ SmlFile::SmlFile(const bytes &buffer) {
   bytes file_buffer = bytes(buffer.begin() + 8, buffer.end() - 8);
 
   // extract messages
-  unsigned int cur = 0;
-  while (cur < file_buffer.size()) {
-    if (file_buffer[cur] == 0x00)
+  unsigned int pos = 0;
+  while (pos < file_buffer.size()) {
+    if (file_buffer[pos] == 0x00)
       break;  // fill byte detected -> no more messages
 
-    this->messages.push_back(SmlNode(file_buffer, cur));
-    cur = skip_entry(file_buffer, cur);
+    this->messages.push_back(SmlNode(file_buffer, pos));
+    pos = skip_entry(file_buffer, pos);
   }
 }
 
