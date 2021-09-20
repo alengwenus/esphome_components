@@ -5,9 +5,9 @@
 
 typedef std::vector<unsigned char> bytes;
 
-short get_entry_type(bytes buffer, unsigned int *pos);
-short get_entry_length(bytes buffer, unsigned int *pos);
-unsigned int skip_entry(bytes buffer, unsigned int pos);
+short get_entry_type(const bytes &buffer, unsigned int *pos);
+short get_entry_length(const bytes &buffer, unsigned int *pos);
+unsigned int skip_entry(const bytes &buffer, unsigned int pos);
 
 class SmlBase {
  public:
@@ -34,7 +34,7 @@ class SmlNode : public SmlBase {
 
 class SmlFile {
  public:
-  SmlFile(bytes buffer);
+  SmlFile(const bytes &buffer);
   std::vector<SmlNode> messages;
 
  protected:
@@ -55,16 +55,16 @@ class ObisInfo {
   std::string code_repr();
 };
 
-bool check_sml_data(bytes buffer);
+bool check_sml_data(const bytes &buffer);
 
-unsigned short calc_crc(bytes buffer);
+unsigned short calc_crc(const bytes &buffer);
 
-std::string bytes_repr(bytes buffer);
+std::string bytes_repr(const bytes &buffer);
 
-uint64_t bytes_to_uint(bytes buffer);
+uint64_t bytes_to_uint(const bytes &buffer);
 
-int64_t bytes_to_int(bytes buffer);
+int64_t bytes_to_int(const bytes &buffer);
 
-std::string bytes_to_string(bytes buffer);
+std::string bytes_to_string(const bytes &buffer);
 
 std::vector<ObisInfo> get_obis_info(SmlFile sml_file);

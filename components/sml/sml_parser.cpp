@@ -6,12 +6,12 @@
 
 using namespace std;
 
-short get_entry_type(bytes buffer, unsigned int pos) {
+short get_entry_type(const bytes &buffer, unsigned int pos) {
   short type = buffer[pos] >> 4;
   return type & 0x07;
 }
 
-short get_entry_length(bytes buffer, unsigned int pos) {
+short get_entry_length(const bytes &buffer, unsigned int pos) {
   short type = buffer[pos] >> 4;
   short length = buffer[pos] & 0x0f;
 
@@ -21,7 +21,7 @@ short get_entry_length(bytes buffer, unsigned int pos) {
   return length;
 }
 
-unsigned int skip_entry(bytes buffer, unsigned int pos) {
+unsigned int skip_entry(const bytes &buffer, unsigned int pos) {
   short entry_length = get_entry_length(buffer, pos);
   if (buffer[pos] == 0x00) {  // end of message
     (pos) += 1;
@@ -73,7 +73,7 @@ std::vector<SmlNode> SmlNode::nodes() {
 
 bool SmlNode::is_list() { return (this->type & 0x07) == SMLLIST; }
 
-SmlFile::SmlFile(bytes buffer) {
+SmlFile::SmlFile(const bytes &buffer) {
   // slice buffer to remove start bytes and end bytes
   bytes file_buffer = bytes(buffer.begin() + 8, buffer.end() - 8);
 
@@ -88,13 +88,13 @@ SmlFile::SmlFile(bytes buffer) {
   }
 }
 
-bool check_sml_data(bytes buffer) {
+bool check_sml_data(const bytes &buffer) {
   // Todo: check start and end bytes
   unsigned short crc_received = (buffer.at(buffer.size() - 2) << 8) | buffer.at(buffer.size() - 1);
   return (crc_received == calc_crc(buffer));
 }
 
-unsigned short calc_crc(bytes buffer) {
+unsigned short calc_crc(const bytes &buffer) {
   unsigned short crcsum = 0xffff;
   int len = buffer.size() - 2;
   int idx = 0;
@@ -108,7 +108,7 @@ unsigned short calc_crc(bytes buffer) {
   return crcsum;
 }
 
-string bytes_repr(bytes buffer) {
+string bytes_repr(const bytes &buffer) {
   ostringstream bytes_stream;
   for (int i = 0; i != buffer.size(); i++) {
     bytes_stream << setfill('0') << setw(2) << hex << (buffer[i] & 0xff);
@@ -116,7 +116,7 @@ string bytes_repr(bytes buffer) {
   return bytes_stream.str();
 }
 
-uint64_t bytes_to_uint(bytes buffer) {
+uint64_t bytes_to_uint(const bytes &buffer) {
   uint64_t val = 0;
   for (int i = 0; i != buffer.size(); i++) {
     val = (val << 8) + buffer.at(i);
@@ -124,7 +124,7 @@ uint64_t bytes_to_uint(bytes buffer) {
   return val;
 }
 
-int64_t bytes_to_int(bytes buffer) {
+int64_t bytes_to_int(const bytes &buffer) {
   int64_t val = 0;
   for (int i = 0; i != buffer.size(); i++) {
     val = (val << 8) + buffer.at(i);
@@ -132,7 +132,7 @@ int64_t bytes_to_int(bytes buffer) {
   return val;
 }
 
-string bytes_to_string(bytes buffer) { return string(buffer.begin(), buffer.end()); }
+string bytes_to_string(const bytes &buffer) { return string(buffer.begin(), buffer.end()); }
 
 ObisInfo::ObisInfo(bytes server_id, SmlNode val_list_entry) {
   this->server_id = server_id;
