@@ -74,11 +74,6 @@ std::vector<SmlNode> SmlNode::nodes() {
 bool SmlNode::is_list() { return (this->type & 0x07) == SMLLIST; }
 
 SmlFile::SmlFile(bytes buffer) {
-  // check bytes crc
-  this->buffer_valid = this->check_buffer(buffer);
-  if (!this->buffer_valid)
-    return;
-
   // slice buffer to remove start bytes and end bytes
   bytes file_buffer = bytes(buffer.begin() + 8, buffer.end() - 8);
 
@@ -93,7 +88,7 @@ SmlFile::SmlFile(bytes buffer) {
   }
 }
 
-bool SmlFile::check_buffer(bytes buffer) {
+bool check_sml_data(bytes buffer) {
   // Todo: check start and end bytes
   unsigned short crc_received = (buffer.at(buffer.size() - 2) << 8) | buffer.at(buffer.size() - 1);
   return (crc_received == calc_crc(buffer));

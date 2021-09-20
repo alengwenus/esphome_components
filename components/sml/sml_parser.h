@@ -34,10 +34,8 @@ class SmlNode : public SmlBase {
 
 class SmlFile {
  public:
-  bool buffer_valid = false;
   SmlFile(bytes buffer);
   std::vector<SmlNode> messages;
-  bool check_buffer(bytes buffer);
 
  protected:
   unsigned int pos = 0;
@@ -56,6 +54,8 @@ class ObisInfo {
   short value_type;
   std::string code_repr();
 };
+
+bool check_sml_data(bytes buffer);
 
 unsigned short calc_crc(bytes buffer);
 

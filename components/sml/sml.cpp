@@ -51,7 +51,13 @@ void Sml::loop() {
   }
 }
 
-void Sml::process_sml_file_(std::vector<unsigned char> sml_data) {
+void Sml::process_sml_file_(bytes sml_data) {
+    // check bytes crc
+  if (!check_sml_data(sml_data)) {
+    ESP_LOGW(TAG, "Checksum error in received SML data.");
+    return;
+  }
+
   SmlFile sml_file = SmlFile(sml_data);
   std::vector<ObisInfo> obis_info = get_obis_info(sml_file);
   this->publish_obis_info_(obis_info);
