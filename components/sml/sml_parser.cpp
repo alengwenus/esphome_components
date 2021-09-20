@@ -24,11 +24,11 @@ short get_entry_length(const bytes &buffer, unsigned int pos) {
 unsigned int skip_entry(const bytes &buffer, unsigned int pos) {
   short entry_length = get_entry_length(buffer, pos);
   if (buffer[pos] == 0x00) {  // end of message
-    (pos) += 1;
+    pos += 1;
   } else if (get_entry_type(buffer, pos) != SMLLIST) {
-    (pos) += entry_length;
+    pos += entry_length;
   } else {  // list
-    (pos)++;
+    pos++;
     for (int i = 0; i != entry_length; i++) {
       pos = skip_entry(buffer, pos);
     };
@@ -125,9 +125,21 @@ uint64_t bytes_to_uint(const bytes &buffer) {
 }
 
 int64_t bytes_to_int(const bytes &buffer) {
-  int64_t val = 0;
-  for (int i = 0; i != buffer.size(); i++) {
-    val = (val << 8) + buffer.at(i);
+  uint64_t tmp = bytes_to_uint(buffer);
+  int64_t val;
+
+  switch (buffer.size()) {
+    case 1:   // int8
+      val = (int8_t)tmp;
+      break;
+    case 2:   // int16
+      val = (int16_t)tmp;
+      break;
+    case 4:   // int32
+      val = (int32_t)tmp;
+      break;
+    default:  // int64
+      val = (int64_t)tmp;
   }
   return val;
 }
