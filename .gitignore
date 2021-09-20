@@ -1,7 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
 # EspHome
 secrets.yaml
 .esphome/
 /sml/
 /test_data/
-
-*.pyc
