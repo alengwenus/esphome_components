@@ -50,7 +50,7 @@ sensor:
     sml_id: mysml
     server_id: "0123456789abcdef"
     obis: "1-0:15.7.0"
-    unit_of_measurement: Wh
+    unit_of_measurement: W
     accuracy_decimals: 1
     filters:
       - multiply: 0.1
@@ -122,6 +122,13 @@ template:
   - sensor:
       - name: "Total Energy Consumption"
         unit_of_measurement: "kWh"
-        state: "{{ (states('sensor.total_energy_string') | float) * 0.0001 }}"
+        state: >
+          {% if states('sensor.total_energy_string') == 'unavailable' %}
+            {{ states('sensor.total_energy_consumption') }}
+          {% else %}
+            {{ ((states('sensor.total_energy_string') | float) * 0.0001) | round(2) }}
+          {% endif %}
 ```
 
+Usually the template sensor's value would turn to 0 if the ESP device is unavailable. This results in problems when using the sensor in combination with the [Utility Meter](https://www.home-assistant.io/integrations/utility_meter/) integration.
+The state template provided above checks for the sensor's availability and keeps the current state in case of unavailability.
