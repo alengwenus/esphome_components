@@ -6,14 +6,9 @@
 
 using namespace std;
 
-short get_entry_type(const bytes &buffer, unsigned int pos) {
+unsigned short get_entry_length(const bytes &buffer, unsigned int &pos) {
   short type = buffer[pos] >> 4;
-  return type & 0x07;
-}
-
-short get_entry_length(const bytes &buffer, unsigned int pos) {
-  short type = buffer[pos] >> 4;
-  short length = buffer[pos] & 0x0f;
+  unsigned short length = buffer[pos] & 0x0f;
 
   if (type & 0x08) {  // we have a long list/value (>15 entries)
     length = (length << 4) + (buffer[pos + 1] & 0x0f);
@@ -21,54 +16,29 @@ short get_entry_length(const bytes &buffer, unsigned int pos) {
   return length;
 }
 
-unsigned int skip_entry(const bytes &buffer, unsigned int pos) {
-  short entry_length = get_entry_length(buffer, pos);
-  if (buffer[pos] == 0x00) {  // end of message
-    pos += 1;
-  } else if (get_entry_type(buffer, pos) != SMLLIST) {
-    pos += entry_length;
-  } else {  // list
-    pos++;
-    for (int i = 0; i != entry_length; i++) {
-      pos = skip_entry(buffer, pos);
-    };
-  };
-  return pos;
-}
-
-SmlBase::SmlBase(const bytes &buffer, unsigned int pos)
-    : buffer_(buffer), pos_(pos) {
-  this->type = buffer[this->pos_] >> 4;
+SmlBase::SmlBase(const bytes &buffer, unsigned int &pos)
+    : buffer_(buffer), startpos_(pos) {
+  this->type = buffer[pos] >> 4;
   this->length = get_entry_length(buffer, pos);
 }
 
-SmlNode::SmlNode(const bytes &buffer, unsigned int pos) : SmlBase(buffer, pos) {}
-
-bytes SmlNode::value_bytes() {
-  return bytes(this->buffer_.begin() + this->pos_ + 1, this->buffer_.begin() + this->pos_ + this->length);
-}
-
-SmlNode SmlNode::node(unsigned int idx) {
-  unsigned int pos = this->pos_ + 1;
-  for (int i = 0; i != idx; i++) {
-    pos = skip_entry(this->buffer_, pos);
-  };
-  return SmlNode(this->buffer_, pos);
-}
-
-std::vector<SmlNode> SmlNode::nodes() {
-  std::vector<SmlNode> nodes;
-  if (this->is_list()) {
-    unsigned int pos = this->pos_ + 1;
-    for (int i = 0; i != this->length; i++) {
-      nodes.push_back(SmlNode(this->buffer_, pos));
-      pos = skip_entry(this->buffer_, pos);
+SmlNode::SmlNode(const bytes &buffer, unsigned int &pos)
+  : SmlBase(buffer, pos) {
+    if(this->buffer_[pos] == 0x00)  // end of message
+      pos += 1;
+    else if(this->is_list()) {    // list
+      pos += 1;
+      for(int i = 0; i!=this->length; i++) {
+        this->nodes.push_back(SmlNode(buffer, pos));
+      }
+    }
+    else {    // value
+      this->value_bytes = bytes(this->buffer_.begin() + pos + 1, this->buffer_.begin() + pos + this->length);
+      pos += length;
     }
   }
-  return nodes;
-}
 
-bool SmlNode::is_list() { return (this->type & 0x07) == SMLLIST; }
+bool SmlNode::is_list() { return ((this->type & 0x07) == SMLLIST); }
 
 SmlFile::SmlFile(const bytes buffer) : buffer_(buffer) {
   // extract messages
@@ -78,12 +48,10 @@ SmlFile::SmlFile(const bytes buffer) : buffer_(buffer) {
       break;  // fill byte detected -> no more messages
 
     this->messages.push_back(SmlNode(this->buffer_, pos));
-    pos = skip_entry(this->buffer_, pos);
   }
 }
 
 bool check_sml_data(const bytes &buffer) {
-  // Todo: check start and end bytes
   unsigned short crc_received = (buffer.at(buffer.size() - 2) << 8) | buffer.at(buffer.size() - 1);
   return (crc_received == calc_crc(buffer));
 }
@@ -142,13 +110,13 @@ string bytes_to_string(const bytes &buffer) { return string(buffer.begin(), buff
 
 ObisInfo::ObisInfo(bytes server_id, SmlNode val_list_entry) {
   this->server_id = server_id;
-  this->code = val_list_entry.node(0).value_bytes();
-  this->status = val_list_entry.node(1).value_bytes();
-  // // this->val_time = &val_list_entry.node(2);
-  this->unit = bytes_to_uint(val_list_entry.node(3).value_bytes());
-  this->scaler = bytes_to_int(val_list_entry.node(4).value_bytes());
-  SmlNode value_node = val_list_entry.node(5);
-  this->value = value_node.value_bytes();
+  this->code = val_list_entry.nodes[0].value_bytes;
+  this->status = val_list_entry.nodes[1].value_bytes;
+  // this->val_time = &val_list_entry.nodes[2];
+  this->unit = bytes_to_uint(val_list_entry.nodes[3].value_bytes);
+  this->scaler = bytes_to_int(val_list_entry.nodes[4].value_bytes);
+  SmlNode value_node = val_list_entry.nodes[5];
+  this->value = value_node.value_bytes;
   this->value_type = value_node.type;
 }
 
@@ -170,16 +138,16 @@ std::vector<ObisInfo> get_obis_info(SmlFile sml_file) {
   std::vector<ObisInfo> obis_info;
   for (int i = 0; i != sml_file.messages.size(); i++) {
     SmlNode message = sml_file.messages[i];
-    SmlNode message_body = message.node(3);
-    unsigned short message_type = bytes_to_uint(message_body.node(0).value_bytes());
+    SmlNode message_body = message.nodes[3];
+    unsigned short message_type = bytes_to_uint(message_body.nodes[0].value_bytes);
     if (message_type != SML_GET_LIST_RES)
       continue;
 
-    SmlNode get_list_response = message_body.node(1);
-    bytes server_id = get_list_response.node(1).value_bytes();
-    SmlNode val_list = get_list_response.node(4);
+    SmlNode get_list_response = message_body.nodes[1];
+    bytes server_id = get_list_response.nodes[1].value_bytes;
+    SmlNode val_list = get_list_response.nodes[4];
 
-    std::vector<SmlNode> nodes = val_list.nodes();
+    std::vector<SmlNode> nodes = val_list.nodes;
     for (int j = 0; j != nodes.size(); j++) {
       obis_info.push_back(ObisInfo(server_id, nodes[j]));
     }

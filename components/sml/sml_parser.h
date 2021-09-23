@@ -5,28 +5,25 @@
 
 typedef std::vector<unsigned char> bytes;
 
-short get_entry_type(const bytes &buffer, unsigned int *pos);
-short get_entry_length(const bytes &buffer, unsigned int *pos);
-unsigned int skip_entry(const bytes &buffer, unsigned int pos);
+unsigned short get_entry_length(const bytes &buffer, unsigned int &pos);
 
 class SmlBase {
  public:
   short type;
-  short length;
-  SmlBase(const bytes &buffer, unsigned int pos);
+  unsigned short length;
+  SmlBase(const bytes &buffer, unsigned int &pos);
 
  protected:
   const bytes &buffer_;
-  unsigned int pos_;
+  const unsigned int startpos_;
 };
 
 class SmlNode : public SmlBase {
  public:
   bool is_list();
-  SmlNode(const bytes &buffer, unsigned int pos);
-  SmlNode node(unsigned int idx);
-  bytes value_bytes();
-  std::vector<SmlNode> nodes();
+  SmlNode(const bytes &buffer, unsigned int &pos);
+  bytes value_bytes;
+  std::vector<SmlNode> nodes;
 };
 
 class SmlFile {
@@ -43,7 +40,7 @@ class ObisInfo {
   bytes server_id;
   bytes code;
   bytes status;
-  SmlNode *val_time;
+  // SmlNode *val_time;
   unsigned char unit;
   char scaler;
   bytes value;
