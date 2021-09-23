@@ -16,23 +16,25 @@ class SmlBase {
   SmlBase(const bytes &buffer, unsigned int pos);
 
  protected:
-  const bytes buffer_;
+  const bytes &buffer_;
   unsigned int pos_;
 };
 
 class SmlNode : public SmlBase {
  public:
-  bytes value_bytes;
   bool is_list();
   SmlNode(const bytes &buffer, unsigned int pos);
   SmlNode node(unsigned int idx);
+  bytes value_bytes();
   std::vector<SmlNode> nodes();
 };
 
 class SmlFile {
  public:
-  SmlFile(const bytes &buffer);
+  SmlFile(const bytes buffer);
   std::vector<SmlNode> messages;
+ protected:
+   const bytes buffer_;
 };
 
 class ObisInfo {
