@@ -3,14 +3,14 @@
 #include <vector>
 #include "constants.h"
 
-typedef std::vector<unsigned char> bytes;
+using bytes = std::vector<char>;
 
-unsigned short get_entry_length(const bytes &buffer, unsigned int &pos);
+uint16_t get_entry_length(const bytes &buffer, unsigned int &pos);
 
 class SmlBase {
  public:
   short type;
-  unsigned short length;
+  uint16_t length;
   SmlBase(const bytes &buffer, unsigned int &pos);
 
  protected:
@@ -28,7 +28,7 @@ class SmlNode : public SmlBase {
 
 class SmlFile {
  public:
-  SmlFile(const bytes buffer);
+  SmlFile(bytes buffer);
   std::vector<SmlNode> messages;
  protected:
    const bytes buffer_;
@@ -41,16 +41,16 @@ class ObisInfo {
   bytes code;
   bytes status;
   // SmlNode *val_time;
-  unsigned char unit;
+  char unit;
   char scaler;
   bytes value;
-  short value_type;
+  uint16_t value_type;
   std::string code_repr();
 };
 
 bool check_sml_data(const bytes &buffer);
 
-unsigned short calc_crc(const bytes &buffer);
+uint16_t calc_crc(const bytes &buffer);
 
 std::string bytes_repr(const bytes &buffer);
 

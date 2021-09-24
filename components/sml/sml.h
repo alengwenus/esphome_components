@@ -25,18 +25,18 @@ class Sml : public Component, public uart::UARTDevice, public api::CustomAPIDevi
 
  protected:
   bool logging_ = false;
-  void process_sml_file_(std::vector<unsigned char> sml_data);
-  void log_obis_info_(std::vector<ObisInfo> obis_info_vec);
-  void fire_obis_info_event_(std::vector<ObisInfo> obis_info_vec);
-  void publish_obis_info_(std::vector<ObisInfo> obis_info_vec);
+  void process_sml_file_(const bytes &sml_data);
+  void log_obis_info_(const std::vector<ObisInfo> &obis_info_vec);
+  void fire_obis_info_event_(const std::vector<ObisInfo> &obis_info_vec);
+  void publish_obis_info_(const std::vector<ObisInfo> &obis_info_vec);
   char checkStartEndBytes_(char c);
   void publish_value_(ObisInfo obis_info);
 
   // Serial parser
   bool record_ = false;
   char incomingBuffer_[8]{0};
-  std::vector<unsigned char> sml_data_;
+  bytes sml_data_;
 };
-void logSmlFile(std::vector<unsigned char> sml_file);
+void log_sml_file(bytes sml_file);
 }  // namespace sml
 }  // namespace esphome

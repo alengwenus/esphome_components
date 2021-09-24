@@ -15,37 +15,37 @@ SmlTextSensor::SmlTextSensor(const char *server_id, const char *obis, const char
 }
 
 void SmlTextSensor::publish_val(ObisInfo obis_info) {
-  short value_type;
+  char value_type;
   if(this->format == "hex")
-    value_type = SMLHEX;
+    value_type = SML_HEX;
   else if (this->format == "text")
-    value_type = SMLOCTET;
+    value_type = SML_OCTET;
   else if (this->format == "bool")
-    value_type = SMLBOOL;
+    value_type = SML_BOOL;
   else if (this->format == "uint")
-    value_type = SMLUINT;
+    value_type = SML_UINT;
   else if (this->format == "int")
-    value_type = SMLINT;
+    value_type = SML_INT;
   else
     value_type = obis_info.value_type;
 
   switch (value_type) {
-    case SMLHEX: {
+    case SML_HEX: {
       publish_state("0x" + bytes_repr(obis_info.value));
       break;
     }
-    case SMLINT: {
+    case SML_INT: {
       publish_state(to_string(bytes_to_int(obis_info.value)));
       break;
     }
-    case SMLBOOL:
+    case SML_BOOL:
       publish_state(bytes_to_uint(obis_info.value) ? "True" : "False");
       break;
-    case SMLUINT: {
+    case SML_UINT: {
       publish_state(to_string(bytes_to_uint(obis_info.value)));
       break;
     }
-    case SMLOCTET: {
+    case SML_OCTET: {
       publish_state(std::string(obis_info.value.begin(), obis_info.value.end()));
       break;
     }
@@ -53,5 +53,6 @@ void SmlTextSensor::publish_val(ObisInfo obis_info) {
 }
 
 void SmlTextSensor::dump_config() { LOG_TEXT_SENSOR("  ", "SML", this); }
+
 }  // namespace sml
 }  // namespace esphome

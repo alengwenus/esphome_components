@@ -14,16 +14,16 @@ SmlSensor::SmlSensor(const char *server_id, const char *obis) {
 
 void SmlSensor::publish_val(ObisInfo obis_info) {
   switch (obis_info.value_type) {
-    case SMLINT: {
+    case SML_INT: {
       publish_state(bytes_to_int(obis_info.value));
       break;
     }
-    case SMLBOOL:
-    case SMLUINT: {
+    case SML_BOOL:
+    case SML_UINT: {
       publish_state(bytes_to_uint(obis_info.value));
       break;
     }
-    case SMLOCTET: {
+    case SML_OCTET: {
       ESP_LOGW(TAG, "No number conversion for (%s) %s. Consider using SML TextSensor instead.",
                bytes_repr(obis_info.server_id).c_str(), obis_info.code_repr().c_str());
       break;
@@ -31,9 +31,7 @@ void SmlSensor::publish_val(ObisInfo obis_info) {
   }
 }
 
-void SmlSensor::dump_config() {
-  std::string type;
-  LOG_SENSOR("  ", "SML", this);
-}
+void SmlSensor::dump_config() { LOG_SENSOR("  ", "SML", this); }
+
 }  // namespace sml
 }  // namespace esphome
