@@ -58,12 +58,10 @@ void Sml::process_sml_file_(const bytes &sml_data) {
   }
 
   SmlFile sml_file = SmlFile(sml_data);
-  std::vector<ObisInfo> obis_info = get_obis_info(sml_file);
+  std::vector<ObisInfo> obis_info = sml_file.get_obis_info();
   this->publish_obis_info_(obis_info);
 
   if (this->logging_)
-    // this->log_obis_info_(obis_info);
-    //  logSmlFile(sml_data);
     // this->log_obis_info_(obis_info);
     this->fire_obis_info_event_(obis_info);
 }

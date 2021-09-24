@@ -40,6 +40,7 @@ SmlNode::SmlNode(const bytes &buffer, unsigned int &pos)
 
 bool SmlNode::is_list() { return ((this->type & 0x07) == SML_LIST); }
 
+
 SmlFile::SmlFile(bytes buffer) : buffer_(std::move(buffer)) {
   // extract messages
   unsigned int pos = 8;
@@ -50,6 +51,28 @@ SmlFile::SmlFile(bytes buffer) : buffer_(std::move(buffer)) {
     this->messages.emplace_back(SmlNode(this->buffer_, pos));
   }
 }
+
+std::vector<ObisInfo> SmlFile::get_obis_info() {
+  std::vector<ObisInfo> obis_info;
+  for (unsigned int i = 0; i != this->messages.size(); i++) {
+    SmlNode message = this->messages[i];
+    SmlNode message_body = message.nodes[3];
+    uint16_t message_type = bytes_to_uint(message_body.nodes[0].value_bytes);
+    if (message_type != SML_GET_LIST_RES)
+      continue;
+
+    SmlNode get_list_response = message_body.nodes[1];
+    bytes server_id = get_list_response.nodes[1].value_bytes;
+    SmlNode val_list = get_list_response.nodes[4];
+
+    std::vector<SmlNode> nodes = val_list.nodes;
+    for (unsigned int j = 0; j != nodes.size(); j++) {
+      obis_info.emplace_back(ObisInfo(server_id, nodes[j]));
+    }
+  }
+  return obis_info;
+}
+
 
 bool check_sml_data(const bytes &buffer) {
   uint16_t crc_received = (buffer.at(buffer.size() - 2) << 8) | buffer.at(buffer.size() - 1);
@@ -108,6 +131,7 @@ int64_t bytes_to_int(const bytes &buffer) {
 
 string bytes_to_string(const bytes &buffer) { return string(buffer.begin(), buffer.end()); }
 
+
 ObisInfo::ObisInfo(bytes server_id, SmlNode val_list_entry) {
   this->server_id = move(server_id);
   this->code = val_list_entry.nodes[0].value_bytes;
@@ -134,23 +158,3 @@ string ObisInfo::code_repr() {
   return code_stream.str();
 }
 
-std::vector<ObisInfo> get_obis_info(SmlFile sml_file) {
-  std::vector<ObisInfo> obis_info;
-  for (unsigned int i = 0; i != sml_file.messages.size(); i++) {
-    SmlNode message = sml_file.messages[i];
-    SmlNode message_body = message.nodes[3];
-    uint16_t message_type = bytes_to_uint(message_body.nodes[0].value_bytes);
-    if (message_type != SML_GET_LIST_RES)
-      continue;
-
-    SmlNode get_list_response = message_body.nodes[1];
-    bytes server_id = get_list_response.nodes[1].value_bytes;
-    SmlNode val_list = get_list_response.nodes[4];
-
-    std::vector<SmlNode> nodes = val_list.nodes;
-    for (unsigned int j = 0; j != nodes.size(); j++) {
-      obis_info.emplace_back(ObisInfo(server_id, nodes[j]));
-    }
-  }
-  return obis_info;
-}

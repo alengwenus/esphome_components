@@ -26,14 +26,6 @@ class SmlNode : public SmlBase {
   std::vector<SmlNode> nodes;
 };
 
-class SmlFile {
- public:
-  SmlFile(bytes buffer);
-  std::vector<SmlNode> messages;
- protected:
-   const bytes buffer_;
-};
-
 class ObisInfo {
  public:
   ObisInfo(bytes server_id, SmlNode val_list);
@@ -48,6 +40,16 @@ class ObisInfo {
   std::string code_repr();
 };
 
+class SmlFile {
+ public:
+  SmlFile(bytes buffer);
+  std::vector<SmlNode> messages;
+  std::vector<ObisInfo> get_obis_info();
+ protected:
+   const bytes buffer_;
+};
+
+
 bool check_sml_data(const bytes &buffer);
 
 uint16_t calc_crc(const bytes &buffer);
@@ -60,4 +62,3 @@ int64_t bytes_to_int(const bytes &buffer);
 
 std::string bytes_to_string(const bytes &buffer);
 
-std::vector<ObisInfo> get_obis_info(SmlFile sml_file);
