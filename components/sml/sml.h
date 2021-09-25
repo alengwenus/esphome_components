@@ -37,6 +37,6 @@ class Sml : public Component, public uart::UARTDevice, public api::CustomAPIDevi
   char incomingBuffer_[8]{0};
   bytes sml_data_;
 };
-void log_sml_file(bytes sml_file);
+void log_sml_data(bytes sml_file);
 }  // namespace sml
 }  // namespace esphome

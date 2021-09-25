@@ -44,7 +44,7 @@ uart:
 sml:
   id: mysml
   uart_id: uart_bus
-  logging: false
+  logging: true
 
 sensor:
   - platform: wifi_signal

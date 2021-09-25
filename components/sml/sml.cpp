@@ -51,7 +51,7 @@ void Sml::loop() {
 }
 
 void Sml::process_sml_file_(const bytes &sml_data) {
-    // check bytes crc
+  // check bytes crc
   if (!check_sml_data(sml_data)) {
     ESP_LOGW(TAG, "Checksum error in received SML data.");
     return;
@@ -61,11 +61,12 @@ void Sml::process_sml_file_(const bytes &sml_data) {
   std::vector<ObisInfo> obis_info = sml_file.get_obis_info();
   this->publish_obis_info_(obis_info);
 
-  if (this->logging_)
-    // this->log_obis_info_(obis_info);
+  if (this->logging_) {
+    this->log_obis_info_(obis_info);
     this->fire_obis_info_event_(obis_info);
+    // log_sml_data(sml_data);
+  }
 }
-
 
 void Sml::log_obis_info_(const std::vector<ObisInfo> &obis_info_vec) {
   int i = 0;
@@ -75,8 +76,7 @@ void Sml::log_obis_info_(const std::vector<ObisInfo> &obis_info_vec) {
     info_stream << obis_info.code_repr() << ": ";
     info_stream << "0x" << bytes_repr(obis_info.value);
     std::string info = info_stream.str();
-    ESP_LOGI(TAG, "%s", info.c_str());
-    delay(5);
+    ESP_LOGD(TAG, "%s", info.c_str());
   }
 }
 
@@ -117,16 +117,15 @@ Sml::Sml(bool logging) : logging_(logging) {}
 
 void Sml::register_sml_listener(SmlListener *listener) { sml_listeners_.emplace_back(listener); }
 
-void log_sml_file(bytes sml_file) {
-  for (int j = 0; j < (sml_file.size() / 16 + 1); j++) {
+void log_sml_data(bytes sml_data) {
+  for (int j = 0; j < (sml_data.size() / 16 + 1); j++) {
     char str_buffer[3 * 16 + 1]{0};
     for (int i = 0; i < 16; i++) {
-      if (16 * j + i == sml_file.size())
+      if (16 * j + i == sml_data.size())
         break;
-      sprintf(&str_buffer[3 * i], "%02x ", sml_file.at(16 * j + i));
+      sprintf(&str_buffer[3 * i], "%02x ", sml_data.at(16 * j + i));
     };
     ESP_LOGD(TAG, "%s", str_buffer);
-    delay(5);
   };
 }
 
