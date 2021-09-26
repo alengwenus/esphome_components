@@ -74,12 +74,16 @@ std::vector<ObisInfo> SmlFile::get_obis_info() {
 }
 
 
-bool check_sml_data(const bytes &buffer) {
+char check_sml_data(const bytes &buffer) {
   uint16_t crc_received = (buffer.at(buffer.size() - 2) << 8) | buffer.at(buffer.size() - 1);
-  return (crc_received == calc_crc(buffer));
+  if (crc_received == calc_crc16_x25(buffer))
+    return CHECK_CRC16_X25_SUCCESS;
+  else if (crc_received == calc_crc16_kermit(buffer))
+    return CHECK_CRC16_KERMIT_SUCCESS;
+  return CHECK_CRC16_FAILED;
 }
 
-uint16_t calc_crc(const bytes &buffer) {
+uint16_t calc_crc16_x25(const bytes &buffer) {
   uint16_t crcsum = 0xffff;
   unsigned int len = buffer.size() - 2;
   unsigned int idx = 0;
@@ -90,6 +94,18 @@ uint16_t calc_crc(const bytes &buffer) {
 
   crcsum ^= 0xffff;
   crcsum = (crcsum >> 8) | ((crcsum & 0xff) << 8);
+  return crcsum;
+}
+
+uint16_t calc_crc16_kermit(const bytes &buffer) {
+  uint16_t crcsum = 0x00;
+  unsigned int len = buffer.size() - 2;
+  unsigned int idx = 0;
+
+  while (len--) {
+    crcsum = (crcsum >> 8) ^ CRC16_X25_TABLE[(crcsum & 0xff) ^ buffer.at(idx++)];
+  }
+
   return crcsum;
 }
 

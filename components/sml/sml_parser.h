@@ -3,7 +3,7 @@
 #include <vector>
 #include "constants.h"
 
-using bytes = std::vector<char>;
+using bytes = std::vector<unsigned char>;
 
 uint16_t get_entry_length(const bytes &buffer, unsigned int &pos);
 
@@ -50,9 +50,11 @@ class SmlFile {
 };
 
 
-bool check_sml_data(const bytes &buffer);
+char check_sml_data(const bytes &buffer);
 
-uint16_t calc_crc(const bytes &buffer);
+uint16_t calc_crc16_x25(const bytes &buffer);
+
+uint16_t calc_crc16_kermit(const bytes &buffer);
 
 std::string bytes_repr(const bytes &buffer);
 

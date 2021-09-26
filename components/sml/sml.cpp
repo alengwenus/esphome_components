@@ -51,45 +51,40 @@ void Sml::loop() {
 }
 
 void Sml::process_sml_file_(const bytes &sml_data) {
-  // check bytes crc
-  if (!check_sml_data(sml_data)) {
-    ESP_LOGW(TAG, "Checksum error in received SML data.");
-    return;
-  }
+  // check integrity of received sml data
+  switch (check_sml_data(sml_data)) {
+    case CHECK_CRC16_X25_SUCCESS: {
+      ESP_LOGV(TAG, "Checksum verification successful with CRC16/X25.");
+      break;
+    };
+    case CHECK_CRC16_KERMIT_SUCCESS: {
+      ESP_LOGV(TAG, "Checksum verification successful with CRC16/KERMIT.");
+      break;
+    };
+    default: {
+      ESP_LOGW(TAG, "Checksum error in received SML data.");
+      return;
+    };
+  };
 
   SmlFile sml_file = SmlFile(sml_data);
   std::vector<ObisInfo> obis_info = sml_file.get_obis_info();
   this->publish_obis_info_(obis_info);
 
-  if (this->logging_) {
-    this->log_obis_info_(obis_info);
-    this->fire_obis_info_event_(obis_info);
-    // log_sml_data(sml_data);
-  }
+  this->log_obis_info_(obis_info);
 }
 
 void Sml::log_obis_info_(const std::vector<ObisInfo> &obis_info_vec) {
   int i = 0;
+  ESP_LOGD(TAG, "OBIS info:");
   for (auto obis_info : obis_info_vec) {
     std::ostringstream info_stream;
-    info_stream << "(" << bytes_repr(obis_info.server_id) << ") ";
-    info_stream << obis_info.code_repr() << ": ";
-    info_stream << "0x" << bytes_repr(obis_info.value);
+    info_stream << "  (" << bytes_repr(obis_info.server_id) << ") ";
+    info_stream << obis_info.code_repr();
+    info_stream << "  [0x" << bytes_repr(obis_info.value) << "]";
     std::string info = info_stream.str();
     ESP_LOGD(TAG, "%s", info.c_str());
   }
-}
-
-void Sml::fire_obis_info_event_(const std::vector<ObisInfo> &obis_info_vec) {
-  std::map<std::string, std::string> data;
-  for (auto obis_info : obis_info_vec) {
-    std::ostringstream key;
-    std::ostringstream value;
-    key << "(" << bytes_repr(obis_info.server_id) << ") " << obis_info.code_repr();
-    value << "0x" << bytes_repr(obis_info.value);
-    data[key.str()] = value.str();
-  }
-  this->fire_homeassistant_event("esphome.sml_obisinfo", data);
 }
 
 void Sml::publish_obis_info_(const std::vector<ObisInfo> &obis_info_vec) {
@@ -108,26 +103,9 @@ void Sml::publish_value_(ObisInfo obis_info) {
   }
 }
 
-void Sml::dump_config() {
-  ESP_LOGCONFIG(TAG, "SML:");
-  ESP_LOGCONFIG(TAG, "  logging: %s", this->logging_ ? "true" : "false");
-}
-
-Sml::Sml(bool logging) : logging_(logging) {}
+void Sml::dump_config() { ESP_LOGCONFIG(TAG, "SML:"); }
 
 void Sml::register_sml_listener(SmlListener *listener) { sml_listeners_.emplace_back(listener); }
-
-void log_sml_data(bytes sml_data) {
-  for (int j = 0; j < (sml_data.size() / 16 + 1); j++) {
-    char str_buffer[3 * 16 + 1]{0};
-    for (int i = 0; i < 16; i++) {
-      if (16 * j + i == sml_data.size())
-        break;
-      sprintf(&str_buffer[3 * i], "%02x ", sml_data.at(16 * j + i));
-    };
-    ESP_LOGD(TAG, "%s", str_buffer);
-  };
-}
 
 }  // namespace sml
 }  // namespace esphome

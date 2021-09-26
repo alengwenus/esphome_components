@@ -32,7 +32,6 @@ uart:
 sml:
   id: mysml
   uart_id: uart_bus
-  logging: false
 
 sensor:
   - platform: sml
@@ -74,7 +73,6 @@ text_sensor:
 
 ### SML platform:
 - **id** (*Optional*): Specify the ID used for code generation.
-- **logging** (*Optional*): If set to `true` a HomeAssistant event (`esphome.sml_obisinfo`) will be fired containing all identified OBIS codes. Defaults to `false`.
 - **uart_id** (*Optional*): Manually specify the ID of the [UART Component](https://esphome.io/components/uart.html#uart).
 
 ### Sensor
@@ -92,11 +90,15 @@ text_sensor:
 
 
 ## Obtaining OBIS codes
-This component has an integrated logging automatism to obtain information about all transmitted OBIS codes.
+The physical values in the transmitted SML telegram are identified by a *server id* and *OBIS codes*. The *server id*
+identifies your smart meter. If you have only one hardware component attached to your optical sensor you usually
+don't have to care about the server id and you may ommit it in your configuration.
 
-For this to work, enable the logging functionality in the `sml` component (`logging: true`). Once enabled, this component will fire a HomeAssistant event with the name `esphome.sml_obisinfo` each time a SML message is received.
+In order to get the server id and the available OBIS codes provided by your smart meter, simply set up the
+SML platform and observe the log output (the log level must be set to at least ``debug``!).
 
-To see the contents of the event, go to the developer tools in the HomeAssistant frontend. Switch to the events tab. Here you can insert the `esphome.sml_obisinfo` event in the lower box and start listenig. Once a SML message is received it will be shown in the list which appears below.
+Each line in the output represents a combination of the server id (in brackets), the OBIS code and the transmitted hex value
+(in square brackets).
 
 ## Precision errors
 Many smart meters emit very huge numbers for certain OBIS codes (like the accumulated total active energy). This may lead to precision errors for the values reported by the sensor component to ESPHome. This shows in the fact that slightly wrong numbers may be reported to HomeAssistant. This is a result from internal limitations in ESPHome and has nothing to do with the SML component.
