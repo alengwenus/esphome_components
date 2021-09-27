@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+#include <vector>
 #include "esphome/core/component.h"
 #include "esphome/components/uart/uart.h"
 #include "sml_parser.h"
@@ -11,6 +13,7 @@ class SmlListener {
  public:
   std::string server_id;
   std::string obis;
+  SmlListener(std::string server_id, std::string obis);
   virtual void publish_val(const ObisInfo &obis_info){};
 };
 

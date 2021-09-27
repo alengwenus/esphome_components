@@ -1,5 +1,3 @@
-#include <iostream>
-#include <sstream>
 #include "sml.h"
 #include "esphome/core/log.h"
 #include "sml_parser.h"
@@ -11,6 +9,9 @@ static const char *const TAG = "sml";
 
 const char START_BYTES_DETECTED = 1;
 const char END_BYTES_DETECTED = 2;
+
+SmlListener::SmlListener(std::string server_id, std::string obis)
+    : server_id(std::move(server_id)), obis(std::move(obis)) {}
 
 char Sml::check_start_end_bytes_(char c) {
   // fill sml_file with incoming bytes
@@ -77,11 +78,10 @@ void Sml::log_obis_info_(const std::vector<ObisInfo> &obis_info_vec) {
   int i = 0;
   ESP_LOGD(TAG, "OBIS info:");
   for (auto const &obis_info : obis_info_vec) {
-    std::ostringstream info_stream;
-    info_stream << "  (" << bytes_repr(obis_info.server_id) << ") ";
-    info_stream << obis_info.code_repr();
-    info_stream << "  [0x" << bytes_repr(obis_info.value) << "]";
-    std::string info = info_stream.str();
+    std::string info;
+    info += "  (" + bytes_repr(obis_info.server_id) + ") ";
+    info += obis_info.code_repr();
+    info += " [0x" + bytes_repr(obis_info.value) + "]";
     ESP_LOGD(TAG, "%s", info.c_str());
   }
 }

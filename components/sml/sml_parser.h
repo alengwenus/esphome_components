@@ -1,12 +1,15 @@
 #pragma once
 
+#include <cstdint>
+#include <cstdio>
+#include <string>
 #include <vector>
 #include "constants.h"
 
 namespace esphome {
 namespace sml {
 
-using bytes = std::vector<unsigned char>;
+using bytes = std::vector<uint8_t>;
 
 uint16_t get_entry_length(const bytes &buffer, unsigned int &pos);
 
