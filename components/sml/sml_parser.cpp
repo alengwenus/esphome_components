@@ -6,6 +6,9 @@
 
 using namespace std;
 
+namespace esphome {
+namespace sml {
+
 uint16_t get_entry_length(const bytes &buffer, unsigned int &pos) {
   uint16_t type = buffer[pos] >> 4;
   uint16_t length = buffer[pos] & 0x0f;
@@ -16,30 +19,26 @@ uint16_t get_entry_length(const bytes &buffer, unsigned int &pos) {
   return length;
 }
 
-SmlBase::SmlBase(const bytes &buffer, unsigned int &pos)
-    : buffer_(buffer), startpos_(pos) {
+SmlBase::SmlBase(const bytes &buffer, unsigned int &pos) : buffer_(buffer), startpos_(pos) {
   this->type = buffer[pos] >> 4;
   this->length = get_entry_length(buffer, pos);
 }
 
-SmlNode::SmlNode(const bytes &buffer, unsigned int &pos)
-  : SmlBase(buffer, pos) {
-    if(this->buffer_[pos] == 0x00)  // end of message
-      pos += 1;
-    else if(this->is_list()) {    // list
-      pos += 1;
-      for(unsigned int i = 0; i!=this->length; i++) {
-        this->nodes.emplace_back(SmlNode(this->buffer_, pos));
-      }
+SmlNode::SmlNode(const bytes &buffer, unsigned int &pos) : SmlBase(buffer, pos) {
+  if (this->buffer_[pos] == 0x00)  // end of message
+    pos += 1;
+  else if (this->is_list()) {  // list
+    pos += 1;
+    for (unsigned int i = 0; i != this->length; i++) {
+      this->nodes.emplace_back(SmlNode(this->buffer_, pos));
     }
-    else {    // value
-      this->value_bytes = bytes(this->buffer_.begin() + pos + 1, this->buffer_.begin() + pos + this->length);
-      pos += length;
-    }
+  } else {  // value
+    this->value_bytes = bytes(this->buffer_.begin() + pos + 1, this->buffer_.begin() + pos + this->length);
+    pos += length;
   }
+}
 
 bool SmlNode::is_list() { return ((this->type & 0x07) == SML_LIST); }
-
 
 SmlFile::SmlFile(bytes buffer) : buffer_(std::move(buffer)) {
   // extract messages
@@ -72,7 +71,6 @@ std::vector<ObisInfo> SmlFile::get_obis_info() {
   }
   return obis_info;
 }
-
 
 char check_sml_data(const bytes &buffer) {
   uint16_t crc_received = (buffer.at(buffer.size() - 2) << 8) | buffer.at(buffer.size() - 1);
@@ -130,29 +128,27 @@ int64_t bytes_to_int(const bytes &buffer) {
   int64_t val;
 
   switch (buffer.size()) {
-    case 1:   // int8
-      val = (int8_t)tmp;
+    case 1:  // int8
+      val = (int8_t) tmp;
       break;
-    case 2:   // int16
-      val = (int16_t)tmp;
+    case 2:  // int16
+      val = (int16_t) tmp;
       break;
-    case 4:   // int32
-      val = (int32_t)tmp;
+    case 4:  // int32
+      val = (int32_t) tmp;
       break;
     default:  // int64
-      val = (int64_t)tmp;
+      val = (int64_t) tmp;
   }
   return val;
 }
 
 string bytes_to_string(const bytes &buffer) { return string(buffer.begin(), buffer.end()); }
 
-
 ObisInfo::ObisInfo(bytes server_id, SmlNode val_list_entry) {
   this->server_id = move(server_id);
   this->code = val_list_entry.nodes[0].value_bytes;
   this->status = val_list_entry.nodes[1].value_bytes;
-  // this->val_time = &val_list_entry.nodes[2];
   this->unit = bytes_to_uint(val_list_entry.nodes[3].value_bytes);
   this->scaler = bytes_to_int(val_list_entry.nodes[4].value_bytes);
   SmlNode value_node = val_list_entry.nodes[5];
@@ -160,7 +156,7 @@ ObisInfo::ObisInfo(bytes server_id, SmlNode val_list_entry) {
   this->value_type = value_node.type;
 }
 
-string ObisInfo::code_repr() {
+string ObisInfo::code_repr() const {
   ostringstream code_stream;
   code_stream << (unsigned int) this->code[0];
   code_stream << "-";
@@ -174,3 +170,5 @@ string ObisInfo::code_repr() {
   return code_stream.str();
 }
 
+}  // namespace sml
+}  // namespace esphome
