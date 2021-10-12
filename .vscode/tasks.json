@@ -2,9 +2,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Open logging example_sml.yaml",
+            "label": "Open logging",
             "type": "shell",
-            "command": "esphome logs example_sml.yaml",
+            "command": "esphome logs ${file}",
             "group": {
                 "kind": "test",
                 "isDefault": true
@@ -16,9 +16,9 @@
             }
         },
         {
-            "label": "Build example_sml.yaml",
+            "label": "Build",
             "type": "shell",
-            "command": "esphome compile example_sml.yaml",
+            "command": "esphome compile ${file}",
             "group": {
                 "kind": "test",
                 "isDefault": true
@@ -31,10 +31,10 @@
             }
         },
         {
-            "label": "Upload example_sml.yaml",
+            "label": "Upload",
             "type": "shell",
-            "command": "esphome upload example_sml.yaml",
-            "dependsOn": ["Build example_sml.yaml"],
+            "command": "esphome upload ${file}",
+            "dependsOn": ["Build"],
             "group": {
                 "kind": "test",
                 "isDefault": true
