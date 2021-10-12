@@ -54,7 +54,7 @@ sensor:
     name: "Total energy"
     sml_id: mysml
     # server_id: "080534d12d4c4bb9"
-    obis: "1-0:1.8.0"
+    obis_code: "1-0:1.8.0"
     unit_of_measurement: kWh
     accuracy_decimals: 1
     filters:
@@ -64,7 +64,7 @@ sensor:
     name: "Total energy 1"
     sml_id: mysml
     # server_id: "080534d12d4c4bb9"
-    obis: "1-0:1.8.1"
+    obis_code: "1-0:1.8.1"
     unit_of_measurement: kWh
     accuracy_decimals: 1
     filters:
@@ -74,7 +74,7 @@ sensor:
     name: "Total energy 2"
     sml_id: mysml
     # server_id: "080534d12d4c4bb9"
-    obis: "1-0:1.8.2"
+    obis_code: "1-0:1.8.2"
     unit_of_measurement: kWh
     accuracy_decimals: 1
     filters:
@@ -84,7 +84,7 @@ sensor:
     name: "Active power"
     sml_id: mysml
     # server_id: "080534d12d4c4bb9"
-    obis: "1-0:15.7.0"
+    obis_code: "1-0:15.7.0"
     unit_of_measurement: Wh
     filters:
       - multiply: 0.1
@@ -95,19 +95,19 @@ text_sensor:
     name: "Manufacturer"
     sml_id: mysml
     # server_id: "080534d12d4c4bb9"
-    obis: "129-129:199.130.3"
+    obis_code: "129-129:199.130.3"
     format: text
 
   - platform: sml
     name: "Total energy Hex"
     sml_id: mysml
     # server_id: "080534d12d4c4bb9"
-    obis: "1-0:1.8.0"
+    obis_code: "1-0:1.8.0"
     format: hex
 
   - platform: sml
     name: "Total energy String"
     sml_id: mysml
     # server_id: "080534d12d4c4bb9"
-    obis: "1-0:1.8.0"
+    obis_code: "1-0:1.8.0"
     # format: uint

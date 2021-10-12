@@ -38,7 +38,7 @@ sensor:
     name: "Total energy"
     sml_id: mysml
     server_id: "0123456789abcdef"
-    obis: "1-0:1.8.0"
+    obis_code: "1-0:1.8.0"
     unit_of_measurement: kWh
     accuracy_decimals: 1
     filters:
@@ -48,7 +48,7 @@ sensor:
     name: "Active power"
     sml_id: mysml
     server_id: "0123456789abcdef"
-    obis: "1-0:15.7.0"
+    obis_code: "1-0:15.7.0"
     unit_of_measurement: W
     accuracy_decimals: 1
     filters:
@@ -59,14 +59,14 @@ text_sensor:
     name: "Manufacturer"
     sml_id: mysml
     server_id: "0123456789abcdef"
-    obis: "129-129:199.130.3"
+    obis_code: "129-129:199.130.3"
     format: text
 
   - platform: sml
     name: "Total energy text"
     sml_id: mysml
     server_id: "0123456789abcdef"
-    obis: "1-0:1.8.0"
+    obis_code: "1-0:1.8.0"
 ```
 
 ## Configuration variables
@@ -76,13 +76,13 @@ text_sensor:
 - **uart_id** (*Optional*): Manually specify the ID of the [UART Component](https://esphome.io/components/uart.html#uart).
 
 ### Sensor
-- **obis** (*Required*, string): Specify the OBIS code you want to retrieve data for from the device. The format must be (A-B:C.D.E, e.g. 1-0:1.8.0)
+- **obis_code** (*Required*, string): Specify the OBIS code you want to retrieve data for from the device. The format must be (A-B:C.D.E, e.g. 1-0:1.8.0)
 - **server_id** (*Optional*, string): Specify the device's server_id to retrieve the OBIS code from. Should be specified if more then one device is connected to the same hardware sensor component.
 - **sml_id** (*Optional*): Specify the ID used for code generation.
 - All other options from [Sensor](https://esphome.io/components/sensor/index.html#config-sensor).
 
 ### Text Sensor
-- **obis** (*Required*, string): Specify the OBIS code you want to retrieve data for from the device. The format must be (A-B:C.D.E, e.g. 1-0:1.8.0)
+- **obis_code** (*Required*, string): Specify the OBIS code you want to retrieve data for from the device. The format must be (A-B:C.D.E, e.g. 1-0:1.8.0)
 - **server_id** (*Optional*, string): Specify the device's server_id to retrieve the OBIS code from. Should be specified if more then one device is connected to the same hardware sensor component.
 - **format** (*Optional*): Override the automatic interpretation of the binary data value. Possible values (`int`, `uint`, `bool`, `hex`, `text`).
 - **sml_id** (*Optional*): Specify the ID used for code generation.
@@ -111,7 +111,7 @@ For ESPHome we have:
 text_sensor:
   - platform: sml
     name: "Total energy string"
-    obis: "1-0:1.8.0"
+    obis_code: "1-0:1.8.0"
     format: uint
 ```
 
