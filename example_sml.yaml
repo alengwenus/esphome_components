@@ -15,7 +15,6 @@ wifi:
   password: !secret wifi_password
 
   manual_ip:
-    # static_ip: 192.168.2.70
     static_ip: 192.168.2.64
     gateway: 192.168.2.1
     subnet: 255.255.255.0
@@ -53,39 +52,42 @@ sensor:
   - platform: sml
     name: "Total energy"
     sml_id: mysml
-    # server_id: "080534d12d4c4bb9"
     obis_code: "1-0:1.8.0"
     unit_of_measurement: kWh
     accuracy_decimals: 1
+    device_class: energy
+    state_class: total_increasing
     filters:
       - multiply: 0.0001
 
   - platform: sml
     name: "Total energy 1"
     sml_id: mysml
-    # server_id: "080534d12d4c4bb9"
     obis_code: "1-0:1.8.1"
     unit_of_measurement: kWh
     accuracy_decimals: 1
+    device_class: energy
+    state_class: total_increasing
     filters:
       - multiply: 0.0001
 
   - platform: sml
     name: "Total energy 2"
     sml_id: mysml
-    # server_id: "080534d12d4c4bb9"
     obis_code: "1-0:1.8.2"
     unit_of_measurement: kWh
     accuracy_decimals: 1
+    device_class: energy
+    state_class: total_increasing
     filters:
       - multiply: 0.0001
 
   - platform: sml
     name: "Active power"
     sml_id: mysml
-    # server_id: "080534d12d4c4bb9"
     obis_code: "1-0:15.7.0"
     unit_of_measurement: Wh
+    device_class: power
     filters:
       - multiply: 0.1
     accuracy_decimals: 1
@@ -94,20 +96,17 @@ text_sensor:
   - platform: sml
     name: "Manufacturer"
     sml_id: mysml
-    # server_id: "080534d12d4c4bb9"
     obis_code: "129-129:199.130.3"
     format: text
 
   - platform: sml
     name: "Total energy Hex"
     sml_id: mysml
-    # server_id: "080534d12d4c4bb9"
     obis_code: "1-0:1.8.0"
     format: hex
 
   - platform: sml
     name: "Total energy String"
     sml_id: mysml
-    # server_id: "080534d12d4c4bb9"
     obis_code: "1-0:1.8.0"
     # format: uint
