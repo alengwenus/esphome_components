@@ -87,10 +87,10 @@ sensor:
     sml_id: mysml
     obis_code: "1-0:15.7.0"
     unit_of_measurement: Wh
+    accuracy_decimals: 1
     device_class: power
     filters:
       - multiply: 0.1
-    accuracy_decimals: 1
 
 text_sensor:
   - platform: sml
