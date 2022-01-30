@@ -40,9 +40,10 @@ uart:
   parity: NONE
   stop_bits: 1
 
-sml:
-  id: mysml
-  uart_id: uart_bus
+# AUTO_LOAD of SML component
+# sml:
+#   # id: mysml
+#   uart_id: uart_bus
 
 sensor:
   - platform: wifi_signal
@@ -51,7 +52,6 @@ sensor:
 
   - platform: sml
     name: "Total energy"
-    sml_id: mysml
     obis_code: "1-0:1.8.0"
     unit_of_measurement: kWh
     accuracy_decimals: 1
@@ -59,10 +59,10 @@ sensor:
     state_class: total_increasing
     filters:
       - multiply: 0.0001
+      - throttle: 30s
 
   - platform: sml
     name: "Total energy 1"
-    sml_id: mysml
     obis_code: "1-0:1.8.1"
     unit_of_measurement: kWh
     accuracy_decimals: 1
@@ -70,10 +70,10 @@ sensor:
     state_class: total_increasing
     filters:
       - multiply: 0.0001
+      - throttle: 30s
 
   - platform: sml
     name: "Total energy 2"
-    sml_id: mysml
     obis_code: "1-0:1.8.2"
     unit_of_measurement: kWh
     accuracy_decimals: 1
@@ -81,32 +81,29 @@ sensor:
     state_class: total_increasing
     filters:
       - multiply: 0.0001
+      - throttle: 30s
 
   - platform: sml
     name: "Active power"
-    sml_id: mysml
     obis_code: "1-0:15.7.0"
     unit_of_measurement: Wh
-    accuracy_decimals: 1
     device_class: power
+    accuracy_decimals: 1
     filters:
       - multiply: 0.1
 
 text_sensor:
   - platform: sml
     name: "Manufacturer"
-    sml_id: mysml
     obis_code: "129-129:199.130.3"
     format: text
 
   - platform: sml
     name: "Total energy Hex"
-    sml_id: mysml
     obis_code: "1-0:1.8.0"
     format: hex
 
   - platform: sml
     name: "Total energy String"
-    sml_id: mysml
     obis_code: "1-0:1.8.0"
     # format: uint
