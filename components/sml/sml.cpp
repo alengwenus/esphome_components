@@ -24,6 +24,12 @@ char Sml::check_start_end_bytes_(char c) {
   return 0;
 }
 
+void Sml::setup() {
+  if (this->rx_led_pin_ != nullptr) {
+    this->rx_led_pin_->setup();
+  }
+}
+
 void Sml::loop() {
   while (available()) {
     const char c = read();
@@ -35,12 +41,16 @@ void Sml::loop() {
       case START_BYTES_DETECTED: {
         this->record_ = true;
         this->sml_data_.assign(START_BYTES, START_BYTES + 8);
+        if (this->rx_led_pin_ != nullptr)
+          this->rx_led_pin_->digital_write(true);
         break;
       };
       case END_BYTES_DETECTED: {
         if (this->record_) {
           this->record_ = false;
           this->process_sml_file_(this->sml_data_);
+          if (this->rx_led_pin_ != nullptr)
+            this->rx_led_pin_->digital_write(false);
         }
         break;
       };
@@ -99,7 +109,10 @@ void Sml::publish_value_(const ObisInfo &obis_info) {
   }
 }
 
-void Sml::dump_config() { ESP_LOGCONFIG(TAG, "SML:"); }
+void Sml::dump_config() {
+  ESP_LOGCONFIG(TAG, "SML:");
+  LOG_PIN("  RX LED Pin: ", this->rx_led_pin_);
+}
 
 void Sml::register_sml_listener(SmlListener *listener) { sml_listeners_.emplace_back(listener); }
 

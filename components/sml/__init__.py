@@ -2,8 +2,10 @@ import re
 
 import esphome.codegen as cg
 import esphome.config_validation as cv
+from esphome import pins
 from esphome.components import uart
 from esphome.const import CONF_ID
+from esphome.cpp_helpers import gpio_pin_expression
 
 CODEOWNERS = ["@alengwenus"]
 
@@ -16,10 +18,12 @@ MULTI_CONF = True
 CONF_SML_ID = "sml_id"
 CONF_OBIS_CODE = "obis_code"
 CONF_SERVER_ID = "server_id"
+CONF_RX_LED_PIN = "rx_led_pin"
 
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(): cv.declare_id(Sml),
+        cv.Optional(CONF_RX_LED_PIN): pins.gpio_output_pin_schema,
     }
 ).extend(uart.UART_DEVICE_SCHEMA)
 
@@ -28,6 +32,9 @@ async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
     await uart.register_uart_device(var, config)
+    if CONF_RX_LED_PIN in config:
+        pin = await gpio_pin_expression(config[CONF_RX_LED_PIN])
+        cg.add(var.set_rx_led_pin(pin))
 
 
 def obis_code(value):

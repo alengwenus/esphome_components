@@ -20,8 +20,10 @@ class SmlListener {
 class Sml : public Component, public uart::UARTDevice {
  public:
   void register_sml_listener(SmlListener *listener);
+  void setup() override;
   void loop() override;
   void dump_config() override;
+  void set_rx_led_pin(GPIOPin *rx_led_pin) { this->rx_led_pin_ = rx_led_pin; }
   std::vector<SmlListener *> sml_listeners_{};
 
  protected:
@@ -30,6 +32,8 @@ class Sml : public Component, public uart::UARTDevice {
   void publish_obis_info_(const std::vector<ObisInfo> &obis_info_vec);
   char check_start_end_bytes_(char c);
   void publish_value_(const ObisInfo &obis_info);
+
+  GPIOPin *rx_led_pin_{nullptr};
 
   // Serial parser
   bool record_ = false;
