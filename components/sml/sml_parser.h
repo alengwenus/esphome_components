@@ -43,12 +43,6 @@ class SmlFile {
   size_t pos_;
 };
 
-char check_sml_data(const bytes &buffer);
-
-uint16_t calc_crc16_x25(const uint8_t *buffer, size_t length);
-
-uint16_t calc_crc16_kermit(const uint8_t *buffer, size_t length);
-
 std::string bytes_repr(const bytes &buffer);
 
 uint64_t bytes_to_uint(const bytes &buffer);
