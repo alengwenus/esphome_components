@@ -35,6 +35,7 @@ bool SmlFile::setup_node(SmlNode *node) {
     return false;
 
   node->type = type & 0x07;
+  node->length = length;
   node->nodes.clear();
   node->value_bytes.clear();
   if (this->buffer_[this->pos_] == 0x00) {  // end of message
@@ -96,17 +97,27 @@ int64_t bytes_to_int(const bytes &buffer) {
   int64_t val;
 
   switch (buffer.size()) {
-    case 1:  // int8
-      val = (int8_t) tmp;
+    case 1:
+      // byte
+      val = (signed char)tmp;
       break;
-    case 2:  // int16
-      val = (int16_t) tmp;
+    case 2:
+      // signed 16 bit
+      val = (int16_t)tmp;
       break;
-    case 4:  // int32
-      val = (int32_t) tmp;
+    case 3:
+      // signed 24 bit
+      val = (int32_t)(tmp << 8);
+      val /= 256;
       break;
-    default:  // int64
-      val = (int64_t) tmp;
+    case 4:
+      // signed 32 bit
+      val = (int32_t)tmp;
+      break;
+    default:
+      // signed 64 bit
+      val = (int64_t)tmp;
+      break;
   }
   return val;
 }
@@ -121,6 +132,7 @@ ObisInfo::ObisInfo(bytes server_id, SmlNode val_list_entry) : server_id(std::mov
   SmlNode value_node = val_list_entry.nodes[5];
   this->value = value_node.value_bytes;
   this->value_type = value_node.type;
+  this->value_length = value_node.length;
 }
 
 std::string ObisInfo::code_repr() const {

@@ -14,6 +14,7 @@ using bytes = std::vector<uint8_t>;
 class SmlNode {
  public:
   uint8_t type;
+  uint8_t length;
   bytes value_bytes;
   std::vector<SmlNode> nodes;
 };
@@ -25,9 +26,10 @@ class ObisInfo {
   bytes code;
   bytes status;
   char unit;
-  char scaler;
+  int32_t scaler;
   bytes value;
   uint16_t value_type;
+  uint8_t value_length;
   std::string code_repr() const;
 };
 
