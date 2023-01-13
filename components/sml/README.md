@@ -78,7 +78,7 @@ text_sensor:
 - **uart_id** (*Optional*): Manually specify the ID of the [UART Component](https://esphome.io/components/uart.html#uart).
 
 ### Sensor
-- **obis_code** (*Required*, string): Specify the OBIS code you want to retrieve data for from the device. The format must be (A-B:C.D.E, e.g. 1-0:1.8.0)
+- **obis_code** (*Required*, string): Specify the OBIS code you want to retrieve data for from the device. The format must be A-B:C.D.E (e.g. 1-0:1.8.0) or A-B:C.D.E\*F (e.g. 1-0:1.8.0\*255). In the first case \*255 will be appended to the code as this is a common default value.
 - **server_id** (*Optional*, string): Specify the device's server_id to retrieve the OBIS code from. Should be specified if more then one device is connected to the same hardware sensor component.
 - **sml_id** (*Optional*): Specify the ID used for code generation.
 - All other options from [Sensor](https://esphome.io/components/sensor/index.html#config-sensor).
