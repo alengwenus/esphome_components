@@ -89,13 +89,13 @@ std::string bytes_to_serverid(const bytes &buffer) {
   int sz = buffer.size();
   if (10 == sz) {
     // Type of Meter (1=electricity)
-    uint8_t meter_type = buffer[0] % 10;
+    uint8_t meter_type = buffer.at(1) % 10;
     // Manufacturer ID (https://www.dlms.com/flag-id/flag-id-list)
-    uint8_t manufacturer_id[] = {buffer[1], buffer[2], buffer[3], 0};
+    uint8_t manufacturer_id[] = {buffer.at(2), buffer.at(3), buffer.at(4), 0};
     // Fabrication block (hex)
-    uint8_t fabrication_block = buffer[4];
+    uint8_t fabrication_block = buffer.at(5);
     // Fabrication number (decimal)
-    uint32_t fabrication_number = (((uint32_t)buffer[5]) << 24) | (((uint32_t)buffer[6]) << 16) | (((uint32_t)buffer[7]) << 8) | (uint32_t)buffer[8];
+    uint32_t fabrication_number = (((uint32_t)buffer.at(6)) << 24) | (((uint32_t)buffer.at(7)) << 16) | (((uint32_t)buffer.at(8)) << 8) | (uint32_t)buffer.at(9);
     fabrication_number %= 100000000;
     repr += str_sprintf("%u%s%02X%08zu", meter_type, manufacturer_id, fabrication_block, fabrication_number); // e.g. 1ABC0012345678 spaces removed
   }
