@@ -77,8 +77,34 @@ std::vector<ObisInfo> SmlFile::get_obis_info() {
 
 std::string bytes_repr(const bytes &buffer) {
   std::string repr;
+  int sz=buffer.size();
   for (auto const value : buffer) {
     repr += str_sprintf("%02x", value & 0xff);
+  }
+  return repr;
+}
+
+std::string bytes_to_serverid(const bytes &buffer) {
+  std::string repr;
+  int sz = buffer.size();
+  if (10 == sz) {
+    // Type of Meter (1=electricity)
+    uint8_t meter_type = buffer[0] % 10;
+    // Manufacturer ID (https://www.dlms.com/flag-id/flag-id-list)
+    uint8_t manufacturer_id[] = {buffer[1], buffer[2], buffer[3], 0};
+    // Fabrication block (hex)
+    uint8_t fabrication_block = buffer[4];
+    // Fabrication number (decimal)
+    uint32_t fabrication_number = (((uint32_t)buffer[5]) << 24) | (((uint32_t)buffer[6]) << 16) | (((uint32_t)buffer[7]) << 8) | (uint32_t)buffer[8];
+    fabrication_number %= 100000000;
+    repr += str_sprintf("%u%s%02X%08zu", meter_type, manufacturer_id, fabrication_block, fabrication_number); // e.g. 1ABC0012345678 spaces removed
+  }
+  else {
+    repr += str_sprintf("(len=%i) ", sz);
+    for (auto const value : buffer)
+    {
+      repr += str_sprintf("%02x", value & 0xff);
+    }
   }
   return repr;
 }

@@ -23,7 +23,7 @@ void SmlSensor::publish_val(const ObisInfo &obis_info) {
     }
     case SML_OCTET: {
       ESP_LOGW(TAG, "No number conversion for (%s) %s. Consider using SML TextSensor instead.",
-               bytes_repr(obis_info.server_id).c_str(), obis_info.code_repr().c_str());
+               bytes_to_serverid(obis_info.server_id).c_str(), obis_info.code_repr().c_str());
       break;
     }
   }
