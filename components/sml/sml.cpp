@@ -65,7 +65,7 @@ void Sml::log_obis_info_(const std::vector<ObisInfo> &obis_info_vec) {
   ESP_LOGD(TAG, "OBIS info:");
   for (auto const &obis_info : obis_info_vec) {
     std::string info;
-    info += "  (" + bytes_repr(obis_info.server_id) + ") ";
+    info += "  (" + bytes_to_serverid(obis_info.server_id) +"/" + bytes_repr(obis_info.server_id) +") ";
     info += obis_info.code_repr();
     info += " [0x" + bytes_repr(obis_info.value) + "]";
     ESP_LOGD(TAG, "%s", info.c_str());
@@ -80,7 +80,7 @@ void Sml::publish_obis_info_(const std::vector<ObisInfo> &obis_info_vec) {
 
 void Sml::publish_value_(const ObisInfo &obis_info) {
   for (auto const &sml_listener : sml_listeners_) {
-    if ((!sml_listener->server_id.empty()) && (bytes_repr(obis_info.server_id) != sml_listener->server_id))
+    if ((!sml_listener->server_id.empty()) && (bytes_repr(obis_info.server_id) != sml_listener->server_id) && (bytes_to_serverid(obis_info.server_id) != sml_listener->server_id))
       continue;
     if (obis_info.code_repr() != sml_listener->obis_code)
       continue;

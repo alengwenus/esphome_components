@@ -45,6 +45,8 @@ class SmlFile {
 
 std::string bytes_repr(const bytes &buffer);
 
+std::string bytes_to_serverid(const bytes &buffer);
+
 uint64_t bytes_to_uint(const bytes &buffer);
 
 int64_t bytes_to_int(const bytes &buffer);

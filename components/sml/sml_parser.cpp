@@ -77,10 +77,50 @@ std::vector<ObisInfo> SmlFile::get_obis_info() {
 
 std::string bytes_repr(const bytes &buffer) {
   std::string repr;
+  int sz=buffer.size();
   for (auto const value : buffer) {
     repr += str_sprintf("%02x", value & 0xff);
   }
   return repr;
+}
+
+std::string bytes_to_serverid(const bytes &buffer) {
+  std::string repr;
+  int sz = buffer.size();
+  //Modern Meters use this format
+  if ((10 == sz) && (buffer.at(0)==0x0a)) {
+    // Type of Meter (1=electricity)
+    uint8_t meter_type = buffer.at(1) % 10;
+    // Manufacturer ID (https://www.dlms.com/flag-id/flag-id-list)
+    uint8_t manufacturer_id[] = {buffer.at(2), buffer.at(3), buffer.at(4), 0};
+    // Fabrication block (hex)
+    uint8_t fabrication_block = buffer.at(5);
+    // Fabrication number (decimal)
+    uint32_t fabrication_number = (((uint32_t)buffer.at(6)) << 24) | (((uint32_t)buffer.at(7)) << 16) | (((uint32_t)buffer.at(8)) << 8) | (uint32_t)buffer.at(9);
+    fabrication_number %= 100000000;
+    repr += str_sprintf("%u%s%02X%08zu", meter_type, manufacturer_id, fabrication_block, fabrication_number); // e.g. 1ABC0012345678 spaces removed
+    return repr;
+  }
+  //Old EDL21 meters send it a little bit different
+  if ((10 == sz) && (buffer.at(0)==0x06)) {
+    uint64_t temp = (((uint64_t)buffer[4]) << 40) | (((uint64_t)buffer[5]) << 32) | (((uint64_t)buffer[6]) << 24) | (((uint64_t)buffer[7]) << 16) | (((uint64_t)buffer[8]) << 8) | (uint64_t)buffer[9];
+    char tempStr[16];
+    sprintf(tempStr, "%llu", temp);
+    uint8_t pos = 5;
+    while (tempStr[pos] == '0')
+      pos++;
+    repr += str_sprintf( "%c%c%c%c%c%c%c%c%s", tempStr[0], buffer[1], buffer[2], buffer[3], tempStr[1], tempStr[2], tempStr[3], tempStr[4], tempStr + pos);
+    return repr;
+  }
+  
+
+  repr += str_sprintf("(len=%i) ", sz);
+  for (auto const value : buffer)
+  {
+    repr += str_sprintf("%02x", value & 0xff);
+  }
+  return repr;
+ 
 }
 
 uint64_t bytes_to_uint(const bytes &buffer) {
